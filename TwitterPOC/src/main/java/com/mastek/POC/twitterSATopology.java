@@ -62,24 +62,37 @@ public class twitterSATopology {
 			
 				if(args.length > 0) //Pass argument to run on cluster
 				{
-					 try {
-						 conf.put(Config.NIMBUS_HOST, "172.16.210.27");
-						 conf.put(Config.NIMBUS_THRIFT_PORT,6627);
-						 conf.put(Config.STORM_ZOOKEEPER_SERVERS,Arrays.asList(new String[]{"172.16.210.27"}));
-						 conf.put(Config.STORM_ZOOKEEPER_PORT,5181);
-						 
-						 System.setProperty("storm.jar", "C:\\Users\\rohan440148\\.m2\\repository\\org\\apache\\storm\\storm-core\\0.9.2-incubating\\storm-core-0.9.2-incubating.jar");
-							
-						 StormSubmitter.submitTopology("twitterPOCToplogy", conf, builder.createTopology());
-						} catch (AlreadyAliveException e) {
-							
-							System.out.println("Exception: "+ e.toString());
-							e.printStackTrace();
-							
-						} catch (InvalidTopologyException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+					conf.put(Config.NIMBUS_HOST, "172.16.210.27");
+	                
+					conf.setDebug(true);
+	                
+	        			 Map storm_conf = Utils.readStormConfig();
+	                
+	        			 storm_conf.put("nimbus.host", "172.16.210.27");
+	                
+			                Client client = NimbusClient.getConfiguredClient(storm_conf).getClient();
+			                
+			                String inputJar = "C:\\Users\\Sachin13031\\Desktop\\KafkaMongoStorm-master\\KafkaMongoStorm-master\\TwitterPOC\\target\\TwitterPOC-1.0-SNAPSHOT-jar-with-dependencies.jar";
+			               
+			                NimbusClient nimbus = new NimbusClient(storm_conf, "172.16.210.27", 6627);
+			      // upload topology jar to Cluster using StormSubmitter
+			               String uploadedJarLocation = StormSubmitter.submitJar(storm_conf, inputJar);
+			               
+			                try {
+			                        String jsonConf = JSONValue.toJSONString(storm_conf);
+			                        
+			                        nimbus.getClient().submitTopology("testtopology", uploadedJarLocation, jsonConf, builder.createTopology());
+			                        
+			                } catch (AlreadyAliveException ae) {
+			                        ae.printStackTrace();
+			                } catch (InvalidTopologyException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	        				   Thread.sleep(60000);
 					
 				}
 				else
