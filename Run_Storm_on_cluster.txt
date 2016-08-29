@@ -1,0 +1,44 @@
+Steps:
+1) Start nimbus service -  ./storm nimbus
+2) Start supervisor-       ./storm supervisor
+3) Start ui service -      ./storm ui
+
+Submit toplogy on cluster
+----------------------------
+
+Build jar from eclipse - 
+Include build config in POM file
+
+<build>
+    <plugins>
+      <!-- any other plugins -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  ------------------
+  Go to root folder of your project and run -  mvn package
+  Once package has been built you can see two jar files in target folder of the proect - TwitterPOC-1.0-SNAPSHOT.jar and TwitterPOC-1.0-SNAPSHOT-jar-with-dependencies.jar
+  
+  move this jar to cluster(/user/root/TwitterPOC-1.0-SNAPSHOT.jar) and run below command from bin folder of storm.
+  > ./storm jar /user/root/TwitterPOC-1.0-SNAPSHOT.jar com.maek.POC.twitterSATopology RunonCluster 
+  
+  RunonCluster- arg to make it run on cluster and not as LocalCluster
+
+  
+  
